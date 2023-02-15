@@ -22,7 +22,9 @@ cities = ['New York', 'London', 'Paris', 'Tokyo']
 
 selected_cities = st.multiselect('Select cities', cities)
 
-st.write('You selected:', selected_cities)
+if st.button('Submit'):
+    st.write('You selected:', selected_cities)
+
 
 # with st.echo(code_location='below'):
 #     total_points = st.slider("Number of points in spiral", 1, 5000, 2000)
