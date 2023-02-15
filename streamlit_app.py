@@ -16,14 +16,13 @@ import streamlit as st
 # """
 
 st.title("Global Entry Notifier")
- 
 
 cities = ['New York', 'London', 'Paris', 'Tokyo']
 
 selected_cities = st.multiselect('Select cities', cities)
 
-if st.button('Submit'):
-    st.write('You selected:', selected_cities)
+#if st.button('Submit'):
+    #st.write('You selected:', selected_cities)
 
 
 # with st.echo(code_location='below'):
