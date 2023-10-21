@@ -16,18 +16,36 @@ import streamlit as st
 # """
 
 # Title
-st.title("Slider Sum App")
+st.title("Prime Number Finder")
 
-# Sliders for user input
-slider1 = st.slider("Select a number for Slider 1", 1, 100, 1)
-slider2 = st.slider("Select a number for Slider 2", 1, 100, 1)
-slider3 = st.slider("Select a number for Slider 3", 1, 100, 1)
+# Function to check if a number is prime
+def is_prime(num):
+    if num <= 1:
+        return False
+    if num <= 3:
+        return True
+    if num % 2 == 0 or num % 3 == 0:
+        return False
+    i = 5
+    while i * i <= num:
+        if num % i == 0 or num % (i + 2) == 0:
+            return False
+        i += 6
+    return True
 
-# Calculate the sum
-total = slider1 + slider2 + slider3
 
-# Display the result
-st.write(f"The sum of the three sliders is: {total}")
+
+# Two-sided slider for user input
+min_value, max_value = st.slider("Select a range of numbers", 1, 100, (1, 100))
+
+# Calculate and display prime numbers within the selected range
+primes_in_range = [num for num in range(min_value, max_value + 1) if is_prime(num)]
+
+if primes_in_range:
+    st.write(f"Prime numbers in the range [{min_value}, {max_value}]:")
+    st.write(primes_in_range)
+else:
+    st.write(f"No prime numbers found in the range [{min_value}, {max_value}].")
 
 
 # with st.echo(code_location='below'):
