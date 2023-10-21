@@ -60,12 +60,7 @@ st.title("S&P 500 Stock Selector")
 selected_stocks = st.multiselect("Select one or more stocks:", sp500_stocks)
 
 # Display the selected stocks as labels
-if selected_stocks:
-    st.text("Selected Stocks:")
-    for stock in selected_stocks:
-        st.text(stock)
-else:
-    st.text("Please select one or more stocks.")
+
 # with st.echo(code_location='below'):
 #     total_points = st.slider("Number of points in spiral", 1, 5000, 2000)
 #     num_turns = st.slider("Number of turns in spiral", 1, 100, 9)
