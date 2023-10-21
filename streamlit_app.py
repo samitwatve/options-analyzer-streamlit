@@ -8,7 +8,6 @@ import time
 import requests
 from datetime import datetime, timedelta
 from datetime import date
-#import seaborn as sns
 from yahoo_fin import options
 global today
 today = date.today()
