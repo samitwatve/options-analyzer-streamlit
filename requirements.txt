@@ -5,7 +5,6 @@ feedparser
 ftplib
 io
 json
-pandas
 requests
 requests_html
 streamlit
@@ -21,5 +20,5 @@ ipywidgets
 IPython
 traceback
 yfinance
-yahoo-fin
 yahoo_fin==0.8.9.1
+
