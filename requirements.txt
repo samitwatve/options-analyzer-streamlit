@@ -12,3 +12,4 @@ tqdm
 ipywidgets 
 IPython
 traceback
+yfinance
