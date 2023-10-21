@@ -1,3 +1,14 @@
 altair
 pandas
 streamlit
+collections
+numpy
+time
+datetime
+requests
+seaborn
+yahoo_fin
+tqdm
+ipywidgets 
+IPython
+traceback
