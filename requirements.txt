@@ -13,3 +13,4 @@ ipywidgets
 IPython
 traceback
 yfinance
+yahoo-fin
