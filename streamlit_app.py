@@ -44,7 +44,7 @@ primes_in_range = [num for num in range(min_value, max_value + 1) if is_prime(nu
 # Display prime numbers in a text area
 st.text("Prime numbers in the selected range:")
 if primes_in_range:
-    st.text("\n".join(map(str, primes_in_range)))
+    st.text(", ".join(map(str, primes_in_range)))
 else:
     st.text("No prime numbers found in the selected range.")
 
