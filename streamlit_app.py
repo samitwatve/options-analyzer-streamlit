@@ -15,14 +15,19 @@ import streamlit as st
 # In the meantime, below is an example of what you can do with just a few lines of code:
 # """
 
-st.title("Global Entry Notifier")
+# Title
+st.title("Slider Sum App")
 
-cities = ['New York', 'London', 'Paris', 'Tokyo']
+# Sliders for user input
+slider1 = st.slider("Select a number for Slider 1", 1, 100, 1)
+slider2 = st.slider("Select a number for Slider 2", 1, 100, 1)
+slider3 = st.slider("Select a number for Slider 3", 1, 100, 1)
 
-selected_cities = st.multiselect('Select cities', cities)
+# Calculate the sum
+total = slider1 + slider2 + slider3
 
-if st.button('Submit'):
-    st.write('You selected:', selected_cities)
+# Display the result
+st.write(f"The sum of the three sliders is: {total}")
 
 
 # with st.echo(code_location='below'):
