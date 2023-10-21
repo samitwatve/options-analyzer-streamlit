@@ -11,7 +11,7 @@ from datetime import date
 from yahoo_fin import options
 global today
 today = date.today()
-from tqdm import tqdm
+
 from yahoo_fin import stock_info as si
 
 from ipywidgets import interact, interactive, fixed, interact_manual
@@ -31,37 +31,23 @@ import traceback
 # """
 
 # Title
+st.set_page_config(layout='wide')
 st.title("Cash secured puts calculator")
 
 # Two-sided slider for user input
-min_DTE, max_DTE = st.slider("DTE", 1, 100, (1, 120))
-min_annualized_return = st.slider('Annualized return', 0, 200, 5)
+col1, col2 = st.columns(2)
 
+with col1:
+    min_DTE, max_DTE = st.slider("DTE", 1, 100, (7, 45))
 
-
-# Calculate and display prime numbers within the selected range
-primes_in_range = [num for num in range(min_value, max_value + 1) if is_prime(num)]
-
-# Display prime numbers in a text area
-st.text("Prime numbers in the selected range:")
-if primes_in_range:
-    st.text(", ".join(map(str, primes_in_range)))
-else:
-    st.text("No prime numbers found in the selected range.")
-
-sp500_stocks = [
-    "AAPL", "MSFT", "GOOGL", "AMZN", "FB",  # Add more stock symbols here
-    # ...
-]
+with col2:
+    min_annualized_return = st.slider('Annualized return', 0, 200, 20)
 
 contract_types = ["Covered Call", "Cash secured put"]
 
-# Title
-st.title("S&P 500 Stock Selector")
-
 # Multiselect dropdown for selecting stocks
-selected_stocks = st.multiselect("Select one or more stocks:", sp500_stocks)
-selected_contract_type = st.multiselect("Contract Type", contract_types)
+selected_stocks = st.multiselect("Select one or more tickers:", list(set(si.tickers_other() + si.tickers_nasdaq())))
+#selected_contract_type = st.multiselect("Contract Type", contract_types)
 
 #### Checks if the market is open right now
 def is_market_open(nowTime):
@@ -87,9 +73,9 @@ def is_market_open(nowTime):
 
 ### Cleans up the supplied options dataframe and returns some useful values that help pick between different options
 
-def massage_dataframe(df, target_price_multiplier = 0.75):
+def massage_dataframe(df, target_price_multiplier = 0.75):   
     ## Clean up Expiration column and calculate DTE
-    df["Expiration"] = df["Expiration"].apply(lambda x: datetime.strptime(x, "%B %d, %Y").date())
+    df["Expiration"] = df["Expiration"].apply(lambda x: datetime.strptime(x, "%B %d, %Y").date())  
     df["DTE"] = (df["Expiration"] - today).dt.days
 
     ## Fix the volume and open interest columns
@@ -116,6 +102,42 @@ def massage_dataframe(df, target_price_multiplier = 0.75):
 
     return(df)
 
+### Further filtering of dataframe to return only the desired options
+
+def filter_dataframe(df, min_open_interest = 10, min_annualized_return = min_annualized_return, max_DTE = max_DTE, min_bid = 0.1, min_volume = 10, min_DTE = min_DTE):
+    df = df[(df['Strike'] <= df["target_prices"]) &
+            (df["Open Interest"] >= min_open_interest) &
+            (df["Annualized return"] >= min_annualized_return) &
+            (df["DTE"] <= max_DTE) &
+            (df["DTE"] >= min_DTE) &
+            (df["Bid"] >= min_bid) &
+            (df["Volume"] >= min_volume)]
+    df = df.sort_values(by = ["Annualized return", "DTE"], ascending = [False, True])
+    return(df)
+
+
+### Format the display dataframe for cleaner presentation
+
+def format_dataframe(df):
+    df = df[["ticker", "Current price", "target_prices", "Strike", "Open Interest", "Expiration", "DTE", "Volume", "Last Price", "Bid", "Ask", "Total return", "Annualized return"]]
+    df.columns = ["Ticker", "Current Stock Price", "Target Price", "Option Strike",  "Option Open Interest", "Expiration", "DTE", "Option Volume", "Option Last Price", "Option Bid", "Option Ask", "Total return", "Annualized return"]
+    df = df.reset_index(drop = True)
+
+    return(df)
+
+## Applies desired formatting for prettier display of dataframe
+
+mapper =  {"Current Stock Price": "${:20,.2f}",
+           "Target Price": "${:20,.2f}",
+           "Option Strike": "${:20,.2f}",
+           "Option Last Price": "${:20,.2f}",
+           "Option Bid": "${:20,.2f}",
+           "Option Ask": "${:20,.2f}",
+           "Total return": "{:2.4f}%",
+           "Annualized return": "{:2.2f}%",
+           "Option Volume": "{:2.0f}"}
+
+placeholder = st._legacy_dataframe()
 ## Run while the market is open
 while True:
     all_puts, filtered_puts = [], []
@@ -129,7 +151,7 @@ while True:
         ## keep only those date within the next 45 days
         dates_to_keep = [dt for dt in available_dates if (datetime.strptime(dt, "%B %d, %Y").date() - today).days <= max_DTE]
 
-        print(f"processing data for {stock}")
+        st.text(f"processing data for {stock}")
 
 
         try:
@@ -142,7 +164,7 @@ while True:
 
             ## Combine everything into single dataframe
             combined_df = pd.concat(all_puts)
-
+            
             ## Copy this dataframe before modifying.
             ##This is important!! The functions used to modify the dataframe makes changes
             ## such that it becomes problematic to combine datatypes when we pull data for multiple stocks
@@ -151,7 +173,8 @@ while True:
 
             ## Process and filter the dataframe
             processed_df = massage_dataframe(temp, target_price_multiplier = 0.85)
-            filtered_df = filter_dataframe(processed_df, min_open_interest = 10, min_annualized_return = 15, max_DTE = 120, min_bid = 0.1, min_volume = 5)
+            filtered_df = filter_dataframe(processed_df)
+            
 
             ## If some puts are left over after filtering, we want to display them
             if(len(filtered_df) > 0):
@@ -162,16 +185,19 @@ while True:
                 #Display all the puts we identified for all tickers
                 filtered_puts.append(filtered_df)
                 display_df = pd.concat(filtered_puts)
-                display_df = format_dataframe(display_df).sort_values(by= "DTE", ascending = True)
-                display(display_df.style.format(mapper).bar(subset=["Annualized return", "DTE", "Option Open Interest"],
-                                                            color = "cornflowerblue"))
+                # Display the DataFrame with custom options
+                
+                display_df = format_dataframe(display_df).sort_values(by= "Annualized return", ascending = False)
+                display_df.style.format(mapper).bar(subset=["Annualized return", "DTE", "Option Open Interest"],
+                                                               color = "cornflowerblue")
+                placeholder.dataframe(display_df)
 
-        except Exception:
-            traceback.print_exc()
-            print(f"Failed to get data for {stock}")
+        except Exception as e:
+            st.exception(e)
+            st.text(f"Failed to get data for {stock}")
         all_puts = []
 
     ## Update user on progress
-    print(f"Last checked on {datetime.now().strftime('%H:%M:%S')}")
-    print(f"Next check on {(datetime.now() + timedelta(minutes = 10)).strftime('%H:%M:%S')}")
-    time.sleep(120)
+    st.text(f"Last checked on {datetime.now().strftime('%H:%M:%S')}")
+    st.text(f"Next check on {(datetime.now() + timedelta(seconds = 10)).strftime('%H:%M:%S')}")
+    break
