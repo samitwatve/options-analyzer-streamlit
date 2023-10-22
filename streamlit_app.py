@@ -42,6 +42,8 @@ enough cash on hand to cover the potential stock purchase.
 
 
 
+
+
 """
 
 st.markdown(f"<div style='text-align: justify'>{description}</div>", unsafe_allow_html=True)
