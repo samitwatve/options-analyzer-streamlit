@@ -41,7 +41,7 @@ generate income or buy a stock at a discount. The risk is if the stock falls sig
 enough cash on hand to cover the potential stock purchase.
 """
 
-st.markdown(f"<div style='text-align: justify'>{text_block}</div>", unsafe_allow_html=True)
+st.markdown(f"<div style='text-align: justify'>{description}</div>", unsafe_allow_html=True)
 # Two-sided slider for user input
 col1, col2 = st.columns(2)
 
