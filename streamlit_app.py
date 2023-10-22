@@ -34,7 +34,7 @@ import traceback
 st.set_page_config(layout='wide')
 st.title("Cash secured puts calculator")
 
-description = """
+text_block = """
 Cash Secured Puts (CSP) are a strategy where an investor sells a put option and holds enough cash to cover the purchase of the underlying stock if it hits the 
 strike price. The seller earns the premium from selling the put, but is obligated to buy the stock at the strike price if the option is exercised. It's a way to 
 generate income or buy a stock at a discount. The risk is if the stock falls significantly below the strike price, leading to a loss. This strategy requires having 
@@ -46,7 +46,7 @@ enough cash on hand to cover the potential stock purchase.
 
 """
 
-st.markdown(f"<div style='text-align: justify'>{description}</div>", unsafe_allow_html=True)
+st.markdown(f"<div style='text-align: justify; margin-bottom: 20px;'>{text_block}</div>", unsafe_allow_html=True)
 # Two-sided slider for user input
 col1, col2 = st.columns(2)
 
