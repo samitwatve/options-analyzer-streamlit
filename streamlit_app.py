@@ -212,5 +212,5 @@ while True:
 
     ## Update user on progress
     st.text(f"Last checked on {datetime.now().strftime('%H:%M:%S')}")
-    st.text(f"Next check on {(datetime.now() + timedelta(seconds = 10)).strftime('%H:%M:%S')}")
-    break
+    st.text(f"Next check on {(datetime.now() + timedelta(minutes = 10)).strftime('%H:%M:%S')}")
+    
