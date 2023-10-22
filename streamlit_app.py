@@ -39,6 +39,9 @@ Cash Secured Puts (CSP) are a strategy where an investor sells a put option and 
 strike price. The seller earns the premium from selling the put, but is obligated to buy the stock at the strike price if the option is exercised. It's a way to 
 generate income or buy a stock at a discount. The risk is if the stock falls significantly below the strike price, leading to a loss. This strategy requires having 
 enough cash on hand to cover the potential stock purchase.
+
+
+
 """
 
 st.markdown(f"<div style='text-align: justify'>{description}</div>", unsafe_allow_html=True)
