@@ -48,7 +48,7 @@ enough cash on hand to cover the potential stock purchase.
 
 st.markdown(f"<div style='text-align: justify; margin-bottom: 20px;'>{text_block}</div>", unsafe_allow_html=True)
 # Two-sided slider for user input
-col1, col2 = st.columns(2)
+col1, col2, col3, col4 = st.columns(4)
 
 with col1:
     min_DTE, max_DTE = st.slider("Days to Expiration (DTE)", 1, 100, (7, 45))
