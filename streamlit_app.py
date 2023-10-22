@@ -56,6 +56,9 @@ with col1:
 with col2:
     min_annualized_return = st.slider('Annualized return', 0, 200, 20)
 
+with col3:
+    min_stock_drawdown = st.slider('Minimum % Drawdown. \n e.g. by setting this value to 10, the screener will only look for strike prices below a 10% fall in the stock price', min_value=0, max_value=100, step=5)
+
 contract_types = ["Covered Call", "Cash secured put"]
 
 # Multiselect dropdown for selecting stocks
@@ -86,7 +89,7 @@ def is_market_open(nowTime):
 
 ### Cleans up the supplied options dataframe and returns some useful values that help pick between different options
 
-def massage_dataframe(df, target_price_multiplier = 0.75):   
+def massage_dataframe(df, target_price_multiplier):   
     ## Clean up Expiration column and calculate DTE
     df["Expiration"] = df["Expiration"].apply(lambda x: datetime.strptime(x, "%B %d, %Y").date())  
     df["DTE"] = (df["Expiration"] - today).dt.days
@@ -185,10 +188,9 @@ while True:
             temp = pd.DataFrame.copy(combined_df)
 
             ## Process and filter the dataframe
-            processed_df = massage_dataframe(temp, target_price_multiplier = 0.85)
+            processed_df = massage_dataframe(temp, target_price_multiplier = 1 - (min_stock_drawdown/100))
             filtered_df = filter_dataframe(processed_df)
             
-
             ## If some puts are left over after filtering, we want to display them
             if(len(filtered_df) > 0):
 
