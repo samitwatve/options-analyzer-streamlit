@@ -33,12 +33,13 @@ import traceback
 # Title
 st.set_page_config(layout='wide')
 st.title("Cash secured puts calculator")
+st.text("Cash Secured Puts (CSP) are a strategy where an investor sells a put option and holds enough cash to cover the purchase of the underlying stock if it hits the strike price. The seller earns the premium from selling the put, but is obligated to buy the stock at the strike price if the option is exercised. It's a way to generate income or buy a stock at a discount. The risk is if the stock falls significantly below the strike price, leading to a loss. This strategy requires having enough cash on hand to cover the potential stock purchase.")
 
 # Two-sided slider for user input
 col1, col2 = st.columns(2)
 
 with col1:
-    min_DTE, max_DTE = st.slider("DTE", 1, 100, (7, 45))
+    min_DTE, max_DTE = st.slider("Days to Expiration (DTE)", 1, 100, (7, 45))
 
 with col2:
     min_annualized_return = st.slider('Annualized return', 0, 200, 20)
