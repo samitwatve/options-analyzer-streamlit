@@ -61,6 +61,7 @@ elif option == "Covered Call":
 st.markdown(f"<div style='text-align: justify; margin-bottom: 20px;'>{text_block}</div>", unsafe_allow_html=True)
 # Two-sided slider for user input
 col1, col2, col3, col4 = st.columns(4)
+col5 = st.columns(1)
 
 with col1:
     min_DTE, max_DTE = st.slider("Days to Expiration (DTE)", 0, 100, (7, 45))
@@ -82,10 +83,17 @@ elif option == "Covered Call":
       """)
 with col4:
     min_volume = st.slider('Minimum Option Volume', 0, 1000, 10)
+   
+if option == "Cash secured put":
+   col5 == None
+   # Multiselect dropdown for selecting stocks
+   selected_stocks = st.multiselect("Select one or more tickers (max 5):",options =  list(set(si.tickers_other() + si.tickers_nasdaq())), default = ["TQQQ"], max_selections = 5)
+if option == "Covered Call":
+   with col5:
+      cost_basis = float(st.text_input('Enter your cost basis for the stock', '$'))
+   # Multiselect dropdown for selecting stocks
+   selected_stocks = st.multiselect("Select stock ticker (max 1):", options =  list(set(si.tickers_other() + si.tickers_nasdaq())), default = ["TQQQ"], max_selections = 1)
 
-
-# Multiselect dropdown for selecting stocks
-selected_stocks = st.multiselect("Select one or more tickers:",options =  list(set(si.tickers_other() + si.tickers_nasdaq())), default = ["AAPL", "TQQQ", "META", "AMC", "GME"])
 
 
 #### Checks if the market is open right now
@@ -111,7 +119,7 @@ def is_market_open(nowTime):
 
 ### Cleans up the supplied options dataframe and returns some useful values that help pick between different options
 
-def massage_dataframe(df, target_price_multiplier):   
+def massage_dataframe(df, target_price_multiplier, option, cost_basis = None):   
     ## Clean up Expiration column and calculate DTE
     df["Expiration"] = df["Expiration"].apply(lambda x: datetime.strptime(x, "%B %d, %Y").date())  
     df["DTE"] = (df["Expiration"] - today).dt.days
@@ -131,13 +139,20 @@ def massage_dataframe(df, target_price_multiplier):
     ## Get target price
     df["target_prices"] = df["Current price"]*target_price_multiplier
 
-    ## Calculate total return
-    midpoint = (df["Ask"] + df["Bid"]) / 2
-    df["Total return"] =  midpoint * 100 / df["Strike"]
-
+    ## Calculate midpoint
+    premium_recieved = (df["Ask"] + df["Bid"]) / 2
+   
+    if option == "Cash secured put":
+       ## Calculate total return
+       df["Total return"] =  premium_recieved * 100 / df["Strike"]
+          
+    elif option == "Covered Call":
+       ## Calculate total return
+       df["Total return"] =  premium_recieved * 100 / cost_basis
+      
     ## Calculate Annualized return
     df["Annualized return"] = round(((1 + df["Total return"]/100) ** (365/df["DTE"]) - 1) * 100, 3)
-
+       
     return(df)
 
 ### Further filtering of dataframe to return only the desired options
@@ -268,7 +283,7 @@ for stock in selected_stocks:
            temp = pd.DataFrame.copy(combined_df)
            
            ## Process and filter the dataframe
-           processed_df = massage_dataframe(temp, target_price_multiplier = target_price_multiplier)
+           processed_df = massage_dataframe(temp, target_price_multiplier = target_price_multiplier, cost_basis)
            filtered_df = filter_dataframe(processed_df)
            st.text(f"Processed {len(processed_df)} calls, {len(filtered_df)} remain after filtering")
            
