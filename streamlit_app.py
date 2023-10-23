@@ -48,7 +48,7 @@ if option == "Cash secured put":
    strike price. The seller earns the premium from selling the put, but is obligated to buy the stock at the strike price if the option is exercised. It's a way to 
    generate income or buy a stock at a discount. The risk is if the stock falls significantly below the strike price, leading to a loss. This strategy requires having 
    enough cash on hand to cover the potential stock purchase."""
-else if option == "Covered Call":
+elif option == "Covered Call":
    text_block = """
    A covered call is an options strategy where an investor holds a long position in an asset and sells (writes) call options on that same asset. 
    This is done to generate income from the option premium, which the investor collects when selling the call option. The strategy provides some 
@@ -71,7 +71,7 @@ if option == "Cash secured put":
        st.markdown("""
        e.g. by setting this value to 10, the screener will only look for strike prices ***below*** a 10% fall in the current stock price
        """)
-   else if option == "Covered Call":
+   elif option == "Covered Call":
       max_stock_upside = st.slider('Maximum % upside', min_value=0, max_value=100, step=5, value=15)
        st.markdown("""
        e.g. by setting this value to 10, the screener will only look for strike prices ***above*** a 10% upside in the current stock price
@@ -186,7 +186,7 @@ placeholder = st._legacy_dataframe()
 if option == "Cash secured put":
    all_puts, filtered_puts = [], []
 
-else if option == "Covered Call":
+elif option == "Covered Call":
    all_calls, filtered_calls = [], []
    
 ## loop through desired stocks
@@ -243,7 +243,7 @@ for stock in selected_stocks:
      all_puts = []
 
 
-   else if option == "Covered Call":
+   elif option == "Covered Call":
        ## Get puts for available dates
          for date in dates_to_keep:
              calls = options.get_calls(stock, date)
