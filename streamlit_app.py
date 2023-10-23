@@ -283,7 +283,7 @@ for stock in selected_stocks:
            temp = pd.DataFrame.copy(combined_df)
            
            ## Process and filter the dataframe
-           processed_df = massage_dataframe(temp, target_price_multiplier = target_price_multiplier, cost_basis)
+           processed_df = massage_dataframe(temp, target_price_multiplier = target_price_multiplier, cost_basis = cost_basis)
            filtered_df = filter_dataframe(processed_df)
            st.text(f"Processed {len(processed_df)} calls, {len(filtered_df)} remain after filtering")
            
