@@ -33,6 +33,7 @@ import traceback
 # Title
 st.set_page_config(layout='wide')
 st.title("Options Analyzer")
+st.markdown(""" **WARNING** Using this tool outside market hours may produce unreliable / non-sensical results.  \n **PROCEED WITH CAUTION** """)
 text_block = None
 
 option = st.selectbox(
@@ -89,9 +90,8 @@ selected_stocks = st.multiselect("Select one or more tickers:",options =  list(s
 
 #### Checks if the market is open right now
 def is_market_open(nowTime):
-    trading_holidays = ["December 25, 2022", "January 2, 2023", "January 16, 2023","February 20, 2023", "April 7, 2023",
-                 "May 29, 2023", "June 19, 2023", "July 4, 2023", "September 4, 2023", "November 23, 2023",
-                 "November 24, 2023", "December 25, 2023"]
+    trading_holidays = ["November 23, 2023", "November 24, 2023", "December 25, 2023", "January 1, 2024", "January 15, 2024", "February 19, 2024", "March 29, 2024", "May 27, 2024"
+                       "June 19, 2024","July 4, 2024","September 2, 2024","November 28, 2024", "December 25, 2024"]
 
     trading_holidays = [datetime.strptime(dt, "%B %d, %Y").date() for dt in trading_holidays]
 
