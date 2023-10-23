@@ -178,10 +178,7 @@ def format_dataframe(df):
          df[col] = df[col].apply(lambda x: format_spec.format(x))
  return(df)
 
-
-
 placeholder = st._legacy_dataframe()
-
 
 ## Run while the market is open
 
@@ -194,97 +191,97 @@ elif option == "Covered Call":
 ## loop through desired stocks
 for stock in selected_stocks:
 
-  ## first get all available dates
-  available_dates= options.get_expiration_dates(stock)
+    ## first get all available dates
+    available_dates= options.get_expiration_dates(stock)
 
-  ## keep only those date within the next 45 days
-  dates_to_keep = [dt for dt in available_dates if (datetime.strptime(dt, "%B %d, %Y").date() - today).days <= max_DTE]
+    ## keep only those date within the next 45 days
+    dates_to_keep = [dt for dt in available_dates if (datetime.strptime(dt, "%B %d, %Y").date() - today).days <= max_DTE]
 
-  st.text(f"processing data for {stock}")
-  if option == "Cash secured put":
-       try:
-           ## Get puts for available dates
-           for date in dates_to_keep:
-               puts = options.get_puts(stock, date)
-               puts["ticker"] = stock
-               puts["Expiration"] = date
-               all_puts.append(puts)
-               
-           ## Combine everything into single dataframe
-           combined_df = pd.concat(all_puts)
-           st.dataframe(combined_df)
-          
-           ## Copy this dataframe before modifying.
-           ## This is important!! The functions used to modify the dataframe makes changes
-           ## such that it becomes problematic to combine datatypes when we pull data for multiple stocks
-   
-           temp = pd.DataFrame.copy(combined_df)
-   
-           ## Process and filter the dataframe
-           processed_df = massage_dataframe(temp, target_price_multiplier = 1 - (min_stock_drawdown/100))
-           filtered_df = filter_dataframe(processed_df)
+    st.text(f"processing data for {stock}")
+    if option == "Cash secured put":
+    try:
+       ## Get puts for available dates
+       for date in dates_to_keep:
+           puts = options.get_puts(stock, date)
+           puts["ticker"] = stock
+           puts["Expiration"] = date
+           all_puts.append(puts)
            
-           ## If some puts are left over after filtering, we want to display them
-           if(len(filtered_df) > 0):
-   
-               # clear the previous results
-               clear_output(wait=True)
-   
-               # Display all the puts we identified for all tickers
-               filtered_puts.append(filtered_df)
-               display_df = pd.concat(filtered_puts)
-               # Display the DataFrame with custom options
-               
-               display_df = format_dataframe(display_df).sort_values(by= "Annualized return", ascending = False)
-               #display_df.style.format(mapper).bar(subset=["Annualized return", "DTE", "Option Open Interest"],
-               #                                   color = "cornflowerblue")
-               placeholder.dataframe(display_df)
-   
-       except Exception as e:
-           st.exception(e)
-           st.text(f"Failed to get data for {stock}")
-       all_puts = []
-   
-   
-   elif option == "Covered Call":
-       try:
-           ## Get puts for available dates
-           for date in dates_to_keep:
-               calls = options.get_calls(stock, date)
-               calls["ticker"] = stock
-               calls["Expiration"] = date
-               all_calls.append(calls)
-               
-           ## Combine everything into single dataframe
-           combined_df = pd.concat(all_calls)
+       ## Combine everything into single dataframe
+       combined_df = pd.concat(all_puts)
+       st.dataframe(combined_df)
+      
+       ## Copy this dataframe before modifying.
+       ## This is important!! The functions used to modify the dataframe makes changes
+       ## such that it becomes problematic to combine datatypes when we pull data for multiple stocks
+
+       temp = pd.DataFrame.copy(combined_df)
+
+       ## Process and filter the dataframe
+       processed_df = massage_dataframe(temp, target_price_multiplier = 1 - (min_stock_drawdown/100))
+       filtered_df = filter_dataframe(processed_df)
+       
+       ## If some puts are left over after filtering, we want to display them
+       if(len(filtered_df) > 0):
+
+           # clear the previous results
+           clear_output(wait=True)
+
+           # Display all the puts we identified for all tickers
+           filtered_puts.append(filtered_df)
+           display_df = pd.concat(filtered_puts)
+           # Display the DataFrame with custom options
            
-           ## Copy this dataframe before modifying.
-           ## This is important!! The functions used to modify the dataframe makes changes
-           ## such that it becomes problematic to combine datatypes when we pull data for multiple stocks
+           display_df = format_dataframe(display_df).sort_values(by= "Annualized return", ascending = False)
+           #display_df.style.format(mapper).bar(subset=["Annualized return", "DTE", "Option Open Interest"],
+           #                                   color = "cornflowerblue")
+           placeholder.dataframe(display_df)
+
+    except Exception as e:
+       st.exception(e)
+       st.text(f"Failed to get data for {stock}")
+    all_puts = []
+
+
+    elif option == "Covered Call":
+    try:
+       ## Get puts for available dates
+       for date in dates_to_keep:
+           calls = options.get_calls(stock, date)
+           calls["ticker"] = stock
+           calls["Expiration"] = date
+           all_calls.append(calls)
            
-           temp = pd.DataFrame.copy(combined_df)
+       ## Combine everything into single dataframe
+       combined_df = pd.concat(all_calls)
+       
+       ## Copy this dataframe before modifying.
+       ## This is important!! The functions used to modify the dataframe makes changes
+       ## such that it becomes problematic to combine datatypes when we pull data for multiple stocks
+       
+       temp = pd.DataFrame.copy(combined_df)
+       
+       ## Process and filter the dataframe
+       processed_df = massage_dataframe(temp, target_price_multiplier = 1 + (min_stock_upside/100))
+       filtered_df = filter_dataframe(processed_df)
+       
+       ## If some puts are left over after filtering, we want to display them
+       if(len(filtered_df) > 0):
            
-           ## Process and filter the dataframe
-           processed_df = massage_dataframe(temp, target_price_multiplier = 1 + (min_stock_upside/100))
-           filtered_df = filter_dataframe(processed_df)
+           # clear the previous results
+           clear_output(wait=True)
            
-           ## If some puts are left over after filtering, we want to display them
-           if(len(filtered_df) > 0):
-               
-               # clear the previous results
-               clear_output(wait=True)
-               
-               # Display all the puts we identified for all tickers
-               filtered_calls.append(filtered_df)
-               display_df = pd.concat(filtered_calls)
-               display_df = format_dataframe(display_df).sort_values(by= "DTE", ascending = True)
-               #display(display_df.style.format(mapper).bar(subset=["Annualized return", "DTE", "Option Open Interest"], 
-               #                                        color = "cornflowerblue"))
-               placeholder.dataframe(display_df)
-       except Exception as e:
-           st.exception(e)
-           st.text(f"Failed to get data for {stock}")
-       all_calls = []
+           # Display all the puts we identified for all tickers
+           filtered_calls.append(filtered_df)
+           display_df = pd.concat(filtered_calls)
+           display_df = format_dataframe(display_df).sort_values(by= "DTE", ascending = True)
+           #display(display_df.style.format(mapper).bar(subset=["Annualized return", "DTE", "Option Open Interest"], 
+           #                                        color = "cornflowerblue"))
+           placeholder.dataframe(display_df)
+    except Exception as e:
+       st.exception(e)
+       st.text(f"Failed to get data for {stock}")
+    all_calls = []
 
 
 ## Update user on progress
