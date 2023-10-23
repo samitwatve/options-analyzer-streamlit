@@ -219,7 +219,7 @@ for stock in selected_stocks:
            ## Process and filter the dataframe
            processed_df = massage_dataframe(temp, target_price_multiplier = 1 - (min_stock_drawdown/100))
            filtered_df = filter_dataframe(processed_df)
-           st.write(f"processed_df has {len(processed_df)} rows, {len(filtered_df))} remain after filtering")
+           st.text(f"processed_df has {len(processed_df)} rows, {len(filtered_df)} remain after filtering")
            
            ## If some puts are left over after filtering, we want to display them
            if(len(filtered_df) > 0):
