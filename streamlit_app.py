@@ -74,9 +74,9 @@ if option == "Cash secured put":
 elif option == "Covered Call":
    with col3:
       max_stock_upside = st.slider('Maximum % upside', min_value=0, max_value=100, step=5, value=15)
-       st.markdown("""
-       e.g. by setting this value to 10, the screener will only look for strike prices ***above*** a 10% upside in the current stock price
-       """)
+      st.markdown("""
+      e.g. by setting this value to 10, the screener will only look for strike prices ***above*** a 10% upside in the current stock price
+      """)
 with col4:
     min_volume = st.slider('Minimum Option Volume', 0, 1000, 10)
 
