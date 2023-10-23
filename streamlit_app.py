@@ -264,6 +264,7 @@ for stock in selected_stocks:
            ## Process and filter the dataframe
            processed_df = massage_dataframe(temp, target_price_multiplier = 1 + (min_stock_upside/100))
            filtered_df = filter_dataframe(processed_df)
+           st.write(len(filtered_df))
            
            ## If some puts are left over after filtering, we want to display them
            if(len(filtered_df) > 0):
