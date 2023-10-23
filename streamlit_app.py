@@ -32,6 +32,14 @@ import traceback
 
 # Title
 st.set_page_config(layout='wide')
+
+option = st.selectbox(
+   "Contract Type",
+   ("Cash secured put", "Covered Call"),
+   index=None,
+   placeholder="Cash secured put"
+)
+st.write('You selected:', option)
 st.title("Cash secured puts calculator")
 
 text_block = """
