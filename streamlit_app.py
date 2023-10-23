@@ -69,6 +69,7 @@ with col2:
 if option == "Cash secured put":
    with col3:
        min_stock_drawdown = st.slider('Minimum % Drawdown', min_value=0, max_value=100, step=5, value=15)
+       st.text("You selected {min_stock_drawdown)")
        st.markdown("""
        e.g. by setting this value to 10, the screener will only look for strike prices ***below*** a 10% fall in the current stock price
        """)
