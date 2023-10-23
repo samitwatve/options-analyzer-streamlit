@@ -209,7 +209,6 @@ for stock in selected_stocks:
                
            ## Combine everything into single dataframe
            combined_df = pd.concat(all_puts)
-           st.dataframe(combined_df)
           
            ## Copy this dataframe before modifying.
            ## This is important!! The functions used to modify the dataframe makes changes
