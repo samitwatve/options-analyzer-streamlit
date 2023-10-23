@@ -209,10 +209,11 @@ if option == "Cash secured put":
             puts["ticker"] = stock
             puts["Expiration"] = date
             all_puts.append(puts)
-
+            
         ## Combine everything into single dataframe
         combined_df = pd.concat(all_puts)
-        
+        st.dataframe(combined_df)
+       
         ## Copy this dataframe before modifying.
         ## This is important!! The functions used to modify the dataframe makes changes
         ## such that it becomes problematic to combine datatypes when we pull data for multiple stocks
