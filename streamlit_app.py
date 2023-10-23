@@ -54,13 +54,15 @@ with col1:
     min_DTE, max_DTE = st.slider("Days to Expiration (DTE)", 1, 100, (7, 45))
 
 with col2:
-    min_annualized_return = st.slider('Annualized return', 0, 200, 20)
+    min_annualized_return = st.slider('Minimum Annualized return', 0, 200, 20)
 
 with col3:
     min_stock_drawdown = st.slider('Minimum % Drawdown', min_value=0, max_value=100, step=5)
     st.markdown("""
     e.g. by setting this value to 10, the screener will only look for strike prices below a 10% fall in the current stock price
     """)
+with col4:
+    min_volume = st.slider('Minimum Option Volume', 0, 1000, 10)
 contract_types = ["Covered Call", "Cash secured put"]
 
 # Multiselect dropdown for selecting stocks
@@ -122,7 +124,7 @@ def massage_dataframe(df, target_price_multiplier):
 
 ### Further filtering of dataframe to return only the desired options
 
-def filter_dataframe(df, min_open_interest = 10, min_annualized_return = min_annualized_return, max_DTE = max_DTE, min_bid = 0.1, min_volume = 10, min_DTE = min_DTE):
+def filter_dataframe(df, min_open_interest = 10, min_annualized_return = min_annualized_return, max_DTE = max_DTE, min_bid = 0.1, min_volume = min_volume, min_DTE = min_DTE):
     df = df[(df['Strike'] <= df["target_prices"]) &
             (df["Open Interest"] >= min_open_interest) &
             (df["Annualized return"] >= min_annualized_return) &
@@ -156,6 +158,8 @@ mapper =  {"Current Stock Price": "${:20,.2f}",
            "Option Volume": "{:2.0f}"}
 
 placeholder = st._legacy_dataframe()
+
+@st.cache
 ## Run while the market is open
 while True:
     all_puts, filtered_puts = [], []
