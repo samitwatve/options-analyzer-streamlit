@@ -88,82 +88,82 @@ selected_stocks = st.multiselect("Select one or more tickers:",options =  list(s
 
 #### Checks if the market is open right now
 def is_market_open(nowTime):
- trading_holidays = ["December 25, 2022", "January 2, 2023", "January 16, 2023","February 20, 2023", "April 7, 2023",
+    trading_holidays = ["December 25, 2022", "January 2, 2023", "January 16, 2023","February 20, 2023", "April 7, 2023",
                  "May 29, 2023", "June 19, 2023", "July 4, 2023", "September 4, 2023", "November 23, 2023",
                  "November 24, 2023", "December 25, 2023"]
 
- trading_holidays = [datetime.strptime(dt, "%B %d, %Y").date() for dt in trading_holidays]
+    trading_holidays = [datetime.strptime(dt, "%B %d, %Y").date() for dt in trading_holidays]
 
- timeStart, timeEnd = "0930", "1600"
- timeStart = datetime.strptime(timeStart, '%H%M').time()
- timeEnd = datetime.strptime(timeEnd, '%H%M').time()
+    timeStart, timeEnd = "0930", "1600"
+    timeStart = datetime.strptime(timeStart, '%H%M').time()
+    timeEnd = datetime.strptime(timeEnd, '%H%M').time()
 
- market_open = False
+    market_open = False
 
- if datetime.today().date() not in trading_holidays:
+    if datetime.today().date() not in trading_holidays:
      if datetime.today().weekday() not in [5, 6]:
          if timeStart < nowTime.time() < timeEnd:
              market_open = True
 
- return(market_open)
+    return(market_open)
 
 
 ### Cleans up the supplied options dataframe and returns some useful values that help pick between different options
 
 def massage_dataframe(df, target_price_multiplier):   
- ## Clean up Expiration column and calculate DTE
- df["Expiration"] = df["Expiration"].apply(lambda x: datetime.strptime(x, "%B %d, %Y").date())  
- df["DTE"] = (df["Expiration"] - today).dt.days
+    ## Clean up Expiration column and calculate DTE
+    df["Expiration"] = df["Expiration"].apply(lambda x: datetime.strptime(x, "%B %d, %Y").date())  
+    df["DTE"] = (df["Expiration"] - today).dt.days
 
- ## Fix the volume and open interest columns
- for col in ["Volume", "Open Interest", "Bid", "Ask"]:
+    ## Fix the volume and open interest columns
+    for col in ["Volume", "Open Interest", "Bid", "Ask"]:
      if pd.api.types.is_numeric_dtype(df[col]):
          df[col] = df[col].replace(to_replace="-", value=0)
      else:
          df[col] = pd.to_numeric(df[col].str.replace(pat="-", repl="0"))
 
 
- ## Get current price
- ticker = df["ticker"].unique()[0]
- df["Current price"] = round(si.get_live_price(ticker), 2)
+    ## Get current price
+    ticker = df["ticker"].unique()[0]
+    df["Current price"] = round(si.get_live_price(ticker), 2)
 
- ## Get target price
- df["target_prices"] = df["Current price"]*target_price_multiplier
+    ## Get target price
+    df["target_prices"] = df["Current price"]*target_price_multiplier
 
- ## Calculate total return
- midpoint = (df["Ask"] + df["Bid"]) / 2
- df["Total return"] =  midpoint * 100 / df["Strike"]
+    ## Calculate total return
+    midpoint = (df["Ask"] + df["Bid"]) / 2
+    df["Total return"] =  midpoint * 100 / df["Strike"]
 
- ## Calculate Annualized return
- df["Annualized return"] = round(((1 + df["Total return"]/100) ** (365/df["DTE"]) - 1) * 100, 3)
+    ## Calculate Annualized return
+    df["Annualized return"] = round(((1 + df["Total return"]/100) ** (365/df["DTE"]) - 1) * 100, 3)
 
- return(df)
+    return(df)
 
 ### Further filtering of dataframe to return only the desired options
 
 def filter_dataframe(df, min_open_interest = 10, min_annualized_return = min_annualized_return, max_DTE = max_DTE, min_bid = 0.1, min_volume = min_volume, min_DTE = min_DTE):
- df = df[(df['Strike'] <= df["target_prices"]) &
+    df = df[(df['Strike'] <= df["target_prices"]) &
          (df["Open Interest"] >= min_open_interest) &
          (df["Annualized return"] >= min_annualized_return) &
          (df["DTE"] <= max_DTE) &
          (df["DTE"] >= min_DTE) &
          (df["Bid"] >= min_bid) &
          (df["Volume"] >= min_volume)]
- df = df.sort_values(by = ["Annualized return", "DTE"], ascending = [False, True])
- return(df)
+    df = df.sort_values(by = ["Annualized return", "DTE"], ascending = [False, True])
+    return(df)
 
 
 
 ### Format the display dataframe for cleaner presentation
 
 def format_dataframe(df):
- df = df[["ticker", "Current price", "target_prices", "Strike", "Open Interest", "Expiration", "DTE", "Volume", "Last Price", "Bid", "Ask", "Total return", "Annualized return"]]
- df.columns = ["Ticker", "Current Stock Price", "Target Price", "Option Strike",  "Option Open Interest", "Expiration", "DTE", "Option Volume", "Option Last Price", "Option Bid", "Option Ask", "Total return", "Annualized return"]
- df = df.reset_index(drop = True)
+    df = df[["ticker", "Current price", "target_prices", "Strike", "Open Interest", "Expiration", "DTE", "Volume", "Last Price", "Bid", "Ask", "Total return", "Annualized return"]]
+    df.columns = ["Ticker", "Current Stock Price", "Target Price", "Option Strike",  "Option Open Interest", "Expiration", "DTE", "Option Volume", "Option Last Price", "Option Bid", "Option Ask", "Total return", "Annualized return"]
+    df = df.reset_index(drop = True)
 
- ## Applies desired formatting for prettier display of dataframe
+    ## Applies desired formatting for prettier display of dataframe
 
- mapper =  {"Current Stock Price": "${:20,.2f}",
+    mapper =  {"Current Stock Price": "${:20,.2f}",
         "Target Price": "${:20,.2f}",
         "Option Strike": "${:20,.2f}",
         "Option Last Price": "${:20,.2f}",
@@ -173,10 +173,10 @@ def format_dataframe(df):
         "Annualized return": "{:2.2f}%",
         "Option Volume": "{:2.0f}"}
 
- for col, format_spec in mapper.items():
+    for col, format_spec in mapper.items():
      if col in df.columns:
          df[col] = df[col].apply(lambda x: format_spec.format(x))
- return(df)
+    return(df)
 
 placeholder = st._legacy_dataframe()
 
