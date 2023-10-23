@@ -136,6 +136,7 @@ def filter_dataframe(df, min_open_interest = 10, min_annualized_return = min_ann
     return(df)
 
 
+
 ### Format the display dataframe for cleaner presentation
 
 def format_dataframe(df):
@@ -143,11 +144,9 @@ def format_dataframe(df):
     df.columns = ["Ticker", "Current Stock Price", "Target Price", "Option Strike",  "Option Open Interest", "Expiration", "DTE", "Option Volume", "Option Last Price", "Option Bid", "Option Ask", "Total return", "Annualized return"]
     df = df.reset_index(drop = True)
 
-    return(df)
+    ## Applies desired formatting for prettier display of dataframe
 
-## Applies desired formatting for prettier display of dataframe
-
-mapper =  {"Current Stock Price": "${:20,.2f}",
+    mapper =  {"Current Stock Price": "${:20,.2f}",
            "Target Price": "${:20,.2f}",
            "Option Strike": "${:20,.2f}",
            "Option Last Price": "${:20,.2f}",
@@ -156,6 +155,13 @@ mapper =  {"Current Stock Price": "${:20,.2f}",
            "Total return": "{:2.4f}%",
            "Annualized return": "{:2.2f}%",
            "Option Volume": "{:2.0f}"}
+
+    for col, format_spec in mapper.items():
+        if col in df.columns:
+            df[col] = df[col].apply(lambda x: format_spec.format(x))
+    return(df)
+
+
 
 placeholder = st._legacy_dataframe()
 
@@ -208,7 +214,7 @@ while True:
                 # Display the DataFrame with custom options
                 
                 display_df = format_dataframe(display_df).sort_values(by= "Annualized return", ascending = False)
-                display_df.style.format(mapper).bar(subset=["Annualized return", "DTE", "Option Open Interest"],
+                #display_df.style.format(mapper).bar(subset=["Annualized return", "DTE", "Option Open Interest"],
                                                                color = "cornflowerblue")
                 placeholder.dataframe(display_df)
 
