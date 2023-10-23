@@ -33,6 +33,7 @@ import traceback
 # Title
 st.set_page_config(layout='wide')
 st.title("Options Analyzer")
+text_block = None
 
 option = st.selectbox(
    "Select a Contract Type",
