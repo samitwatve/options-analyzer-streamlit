@@ -71,7 +71,8 @@ if option == "Cash secured put":
        st.markdown("""
        e.g. by setting this value to 10, the screener will only look for strike prices ***below*** a 10% fall in the current stock price
        """)
-   elif option == "Covered Call":
+elif option == "Covered Call":
+   with col3:
       max_stock_upside = st.slider('Maximum % upside', min_value=0, max_value=100, step=5, value=15)
        st.markdown("""
        e.g. by setting this value to 10, the screener will only look for strike prices ***above*** a 10% upside in the current stock price
