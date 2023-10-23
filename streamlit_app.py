@@ -200,9 +200,8 @@ for stock in selected_stocks:
     
     if option == "Cash secured put":
         st.text(f"processing data for {stock}")
-
         target_price_multiplier = 1 - (min_stock_drawdown/100)
-        st.text(f"target_price_multiplier = {target_price_multiplier}")
+
         try:
            ## Get puts for available dates
            for date in dates_to_keep:
@@ -222,10 +221,8 @@ for stock in selected_stocks:
 
            ## Process and filter the dataframe
            processed_df = massage_dataframe(temp, target_price_multiplier = target_price_multiplier)
-           st.dataframe(processed_df) 
-           
            filtered_df = filter_dataframe(processed_df)
-           st.text(f"processed_df has {len(processed_df)} rows, {len(filtered_df)} remain after filtering")
+           st.text(f"Processed {len(processed_df)} puts, {len(filtered_df)} remain after filtering")
            
            ## If some puts are left over after filtering, we want to display them
            if(len(filtered_df) > 0):
@@ -251,9 +248,8 @@ for stock in selected_stocks:
 
     elif option == "Covered Call":
         st.text(f"processing data for {stock}")
-        
         target_price_multiplier = 1 + (min_stock_upside/100)
-        st.text(f"target_price_multiplier = {target_price_multiplier}")
+     
         try:
            ## Get puts for available dates
            for date in dates_to_keep:
@@ -274,7 +270,7 @@ for stock in selected_stocks:
            ## Process and filter the dataframe
            processed_df = massage_dataframe(temp, target_price_multiplier = target_price_multiplier)
            filtered_df = filter_dataframe(processed_df)
-       
+           st.text(f"Processed {len(processed_df)} calls, {len(filtered_df)} remain after filtering")
            
            ## If some puts are left over after filtering, we want to display them
            if(len(filtered_df) > 0):
@@ -289,6 +285,7 @@ for stock in selected_stocks:
                #display(display_df.style.format(mapper).bar(subset=["Annualized return", "DTE", "Option Open Interest"], 
                #                                        color = "cornflowerblue"))
                placeholder.dataframe(display_df)
+        
         except Exception as e:
            st.exception(e)
            st.text(f"Failed to get data for {stock}")
