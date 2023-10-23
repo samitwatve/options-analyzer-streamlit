@@ -159,7 +159,7 @@ mapper =  {"Current Stock Price": "${:20,.2f}",
 
 placeholder = st._legacy_dataframe()
 
-@st.cache
+
 ## Run while the market is open
 while True:
     all_puts, filtered_puts = [], []
@@ -174,7 +174,6 @@ while True:
         dates_to_keep = [dt for dt in available_dates if (datetime.strptime(dt, "%B %d, %Y").date() - today).days <= max_DTE]
 
         st.text(f"processing data for {stock}")
-
 
         try:
             ## Get puts for available dates
