@@ -64,7 +64,7 @@ with col3:
 contract_types = ["Covered Call", "Cash secured put"]
 
 # Multiselect dropdown for selecting stocks
-selected_stocks = st.multiselect("Select one or more tickers:", list(set(si.tickers_other() + si.tickers_nasdaq())))
+selected_stocks = st.multiselect("Select one or more tickers:",options =  list(set(si.tickers_other() + si.tickers_nasdaq())), default = ["AAPL", "TQQQ", "META", "AMC", "GME"])
 #selected_contract_type = st.multiselect("Contract Type", contract_types)
 
 #### Checks if the market is open right now
