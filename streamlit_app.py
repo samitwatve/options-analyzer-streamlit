@@ -33,7 +33,7 @@ import traceback
 # Title
 st.set_page_config(layout='wide')
 st.title("Options Analyzer")
-st.markdown(""" **WARNING** Using this tool outside market hours may produce unreliable / non-sensical results.  \n **PROCEED WITH CAUTION** """)
+st.markdown(""" **WARNING** Using this tool outside market hours may produce unreliable / non-sensical results. **PROCEED WITH CAUTION. YOU HAVE BEEN WARNED!!** """)
 text_block = None
 
 option = st.selectbox(
