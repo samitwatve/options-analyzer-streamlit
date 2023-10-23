@@ -200,6 +200,9 @@ for stock in selected_stocks:
     
     if option == "Cash secured put":
         st.text(f"processing data for {stock}")
+
+        target_price_multiplier = 1 - (min_stock_drawdown/100)
+        st.text(f"target_price_multiplier = {target_price_multiplier}")
         try:
            ## Get puts for available dates
            for date in dates_to_keep:
@@ -218,7 +221,7 @@ for stock in selected_stocks:
            temp = pd.DataFrame.copy(combined_df)
 
            ## Process and filter the dataframe
-           processed_df = massage_dataframe(temp, target_price_multiplier = 1 - (min_stock_drawdown/100))
+           processed_df = massage_dataframe(temp, target_price_multiplier = target_price_multiplier)
            filtered_df = filter_dataframe(processed_df)
            st.text(f"processed_df has {len(processed_df)} rows, {len(filtered_df)} remain after filtering")
            
@@ -246,6 +249,9 @@ for stock in selected_stocks:
 
     elif option == "Covered Call":
         st.text(f"processing data for {stock}")
+        
+        target_price_multiplier = 1 + (min_stock_upside/100)
+        st.text(f"target_price_multiplier = {target_price_multiplier}")
         try:
            ## Get puts for available dates
            for date in dates_to_keep:
@@ -264,7 +270,7 @@ for stock in selected_stocks:
            temp = pd.DataFrame.copy(combined_df)
            
            ## Process and filter the dataframe
-           processed_df = massage_dataframe(temp, target_price_multiplier = 1 + (min_stock_upside/100))
+           processed_df = massage_dataframe(temp, target_price_multiplier = target_price_multiplier)
            filtered_df = filter_dataframe(processed_df)
        
            
