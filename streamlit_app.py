@@ -196,8 +196,8 @@ for stock in selected_stocks:
 
     ## keep only those date within the next 45 days
     dates_to_keep = [dt for dt in available_dates if (datetime.strptime(dt, "%B %d, %Y").date() - today).days <= max_DTE]
-
-   if option == "Cash secured put":
+    
+    if option == "Cash secured put":
         st.text(f"processing data for {stock}")
         try:
            ## Get puts for available dates
@@ -209,6 +209,7 @@ for stock in selected_stocks:
                
            ## Combine everything into single dataframe
            combined_df = pd.concat(all_puts)
+           st.dataframe(combined_df)
           
            ## Copy this dataframe before modifying.
            ## This is important!! The functions used to modify the dataframe makes changes
@@ -283,9 +284,8 @@ for stock in selected_stocks:
            st.text(f"Failed to get data for {stock}")
         all_calls = []
 
-
-## Update user on progress
-if not option== None:
-   st.text(f"Last checked on {datetime.now().strftime('%H:%M:%S')}")
-   #st.text(f"Next check on {(datetime.now() + timedelta(minutes = 10)).strftime('%H:%M:%S')}")
+if not option == None:
+    ## Update user on progress
+    st.text(f"Last checked on {datetime.now().strftime('%H:%M:%S')}")
+    #st.text(f"Next check on {(datetime.now() + timedelta(minutes = 10)).strftime('%H:%M:%S')}")
 
