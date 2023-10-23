@@ -32,28 +32,30 @@ import traceback
 
 # Title
 st.set_page_config(layout='wide')
+st.title("Options Analyzer")
 
 option = st.selectbox(
-   "Contract Type",
+   "Select a Contract Type",
    ("Cash secured put", "Covered Call"),
    index=None,
    placeholder="Cash secured put"
 )
 st.write('You selected:', option)
-st.title("Cash secured puts calculator")
 
-text_block = """
-Cash Secured Puts (CSP) are a strategy where an investor sells a put option and holds enough cash to cover the purchase of the underlying stock if it hits the 
-strike price. The seller earns the premium from selling the put, but is obligated to buy the stock at the strike price if the option is exercised. It's a way to 
-generate income or buy a stock at a discount. The risk is if the stock falls significantly below the strike price, leading to a loss. This strategy requires having 
-enough cash on hand to cover the potential stock purchase.
-
-
-
-
-
-"""
-
+if option == "Cash secured put":
+   text_block = """
+   Cash Secured Puts (CSP) are a strategy where an investor sells a put option and holds enough cash to cover the purchase of the underlying stock if it hits the 
+   strike price. The seller earns the premium from selling the put, but is obligated to buy the stock at the strike price if the option is exercised. It's a way to 
+   generate income or buy a stock at a discount. The risk is if the stock falls significantly below the strike price, leading to a loss. This strategy requires having 
+   enough cash on hand to cover the potential stock purchase."""
+else if option == "Covered Call":
+   text_block = """
+   A covered call is an options strategy where an investor holds a long position in an asset and sells (writes) call options on that same asset. 
+   This is done to generate income from the option premium, which the investor collects when selling the call option. The strategy provides some 
+   downside protection, as the premium collected can offset declines in the asset's price to an extent. However, it also caps the upside potential 
+   since the investor is obligated to sell the asset at the strike price if the call option is exercised. Covered calls can be a conservative strategy 
+   to generate additional income on a held asset."""
+   
 st.markdown(f"<div style='text-align: justify; margin-bottom: 20px;'>{text_block}</div>", unsafe_allow_html=True)
 # Two-sided slider for user input
 col1, col2, col3, col4 = st.columns(4)
@@ -63,111 +65,116 @@ with col1:
 
 with col2:
     min_annualized_return = st.slider('Minimum Annualized return', min_value=0, max_value=200, value=20)
-
-with col3:
-    min_stock_drawdown = st.slider('Minimum % Drawdown', min_value=0, max_value=100, step=5, value=15)
-    st.markdown("""
-    e.g. by setting this value to 10, the screener will only look for strike prices below a 10% fall in the current stock price
-    """)
+if option == "Cash secured put":
+   with col3:
+       min_stock_drawdown = st.slider('Minimum % Drawdown', min_value=0, max_value=100, step=5, value=15)
+       st.markdown("""
+       e.g. by setting this value to 10, the screener will only look for strike prices ***below*** a 10% fall in the current stock price
+       """)
+   else if option == "Covered Call":
+      max_stock_upside = st.slider('Maximum % upside', min_value=0, max_value=100, step=5, value=15)
+       st.markdown("""
+       e.g. by setting this value to 10, the screener will only look for strike prices ***above*** a 10% upside in the current stock price
+       """)
 with col4:
     min_volume = st.slider('Minimum Option Volume', 0, 1000, 10)
-contract_types = ["Covered Call", "Cash secured put"]
+
 
 # Multiselect dropdown for selecting stocks
 selected_stocks = st.multiselect("Select one or more tickers:",options =  list(set(si.tickers_other() + si.tickers_nasdaq())), default = ["AAPL", "TQQQ", "META", "AMC", "GME"])
-#selected_contract_type = st.multiselect("Contract Type", contract_types)
+
 
 #### Checks if the market is open right now
 def is_market_open(nowTime):
-    trading_holidays = ["December 25, 2022", "January 2, 2023", "January 16, 2023","February 20, 2023", "April 7, 2023",
-                    "May 29, 2023", "June 19, 2023", "July 4, 2023", "September 4, 2023", "November 23, 2023",
-                    "November 24, 2023", "December 25, 2023"]
+ trading_holidays = ["December 25, 2022", "January 2, 2023", "January 16, 2023","February 20, 2023", "April 7, 2023",
+                 "May 29, 2023", "June 19, 2023", "July 4, 2023", "September 4, 2023", "November 23, 2023",
+                 "November 24, 2023", "December 25, 2023"]
 
-    trading_holidays = [datetime.strptime(dt, "%B %d, %Y").date() for dt in trading_holidays]
+ trading_holidays = [datetime.strptime(dt, "%B %d, %Y").date() for dt in trading_holidays]
 
-    timeStart, timeEnd = "0930", "1600"
-    timeStart = datetime.strptime(timeStart, '%H%M').time()
-    timeEnd = datetime.strptime(timeEnd, '%H%M').time()
+ timeStart, timeEnd = "0930", "1600"
+ timeStart = datetime.strptime(timeStart, '%H%M').time()
+ timeEnd = datetime.strptime(timeEnd, '%H%M').time()
 
-    market_open = False
+ market_open = False
 
-    if datetime.today().date() not in trading_holidays:
-        if datetime.today().weekday() not in [5, 6]:
-            if timeStart < nowTime.time() < timeEnd:
-                market_open = True
+ if datetime.today().date() not in trading_holidays:
+     if datetime.today().weekday() not in [5, 6]:
+         if timeStart < nowTime.time() < timeEnd:
+             market_open = True
 
-    return(market_open)
+ return(market_open)
 
 
 ### Cleans up the supplied options dataframe and returns some useful values that help pick between different options
 
 def massage_dataframe(df, target_price_multiplier):   
-    ## Clean up Expiration column and calculate DTE
-    df["Expiration"] = df["Expiration"].apply(lambda x: datetime.strptime(x, "%B %d, %Y").date())  
-    df["DTE"] = (df["Expiration"] - today).dt.days
+ ## Clean up Expiration column and calculate DTE
+ df["Expiration"] = df["Expiration"].apply(lambda x: datetime.strptime(x, "%B %d, %Y").date())  
+ df["DTE"] = (df["Expiration"] - today).dt.days
 
-    ## Fix the volume and open interest columns
-    for col in ["Volume", "Open Interest", "Bid", "Ask"]:
-        if pd.api.types.is_numeric_dtype(df[col]):
-            df[col] = df[col].replace(to_replace="-", value=0)
-        else:
-            df[col] = pd.to_numeric(df[col].str.replace(pat="-", repl="0"))
+ ## Fix the volume and open interest columns
+ for col in ["Volume", "Open Interest", "Bid", "Ask"]:
+     if pd.api.types.is_numeric_dtype(df[col]):
+         df[col] = df[col].replace(to_replace="-", value=0)
+     else:
+         df[col] = pd.to_numeric(df[col].str.replace(pat="-", repl="0"))
 
 
-    ## Get current price
-    ticker = df["ticker"].unique()[0]
-    df["Current price"] = round(si.get_live_price(ticker), 2)
+ ## Get current price
+ ticker = df["ticker"].unique()[0]
+ df["Current price"] = round(si.get_live_price(ticker), 2)
 
-    ## Get target price
-    df["target_prices"] = df["Current price"]*target_price_multiplier
+ ## Get target price
+ df["target_prices"] = df["Current price"]*target_price_multiplier
 
-    ## Calculate total return
-    midpoint = (df["Ask"] + df["Bid"]) / 2
-    df["Total return"] =  midpoint * 100 / df["Strike"]
+ ## Calculate total return
+ midpoint = (df["Ask"] + df["Bid"]) / 2
+ df["Total return"] =  midpoint * 100 / df["Strike"]
 
-    ## Calculate Annualized return
-    df["Annualized return"] = round(((1 + df["Total return"]/100) ** (365/df["DTE"]) - 1) * 100, 3)
+ ## Calculate Annualized return
+ df["Annualized return"] = round(((1 + df["Total return"]/100) ** (365/df["DTE"]) - 1) * 100, 3)
 
-    return(df)
+ return(df)
 
 ### Further filtering of dataframe to return only the desired options
 
 def filter_dataframe(df, min_open_interest = 10, min_annualized_return = min_annualized_return, max_DTE = max_DTE, min_bid = 0.1, min_volume = min_volume, min_DTE = min_DTE):
-    df = df[(df['Strike'] <= df["target_prices"]) &
-            (df["Open Interest"] >= min_open_interest) &
-            (df["Annualized return"] >= min_annualized_return) &
-            (df["DTE"] <= max_DTE) &
-            (df["DTE"] >= min_DTE) &
-            (df["Bid"] >= min_bid) &
-            (df["Volume"] >= min_volume)]
-    df = df.sort_values(by = ["Annualized return", "DTE"], ascending = [False, True])
-    return(df)
+ df = df[(df['Strike'] <= df["target_prices"]) &
+         (df["Open Interest"] >= min_open_interest) &
+         (df["Annualized return"] >= min_annualized_return) &
+         (df["DTE"] <= max_DTE) &
+         (df["DTE"] >= min_DTE) &
+         (df["Bid"] >= min_bid) &
+         (df["Volume"] >= min_volume)]
+ df = df.sort_values(by = ["Annualized return", "DTE"], ascending = [False, True])
+ return(df)
 
 
 
 ### Format the display dataframe for cleaner presentation
 
 def format_dataframe(df):
-    df = df[["ticker", "Current price", "target_prices", "Strike", "Open Interest", "Expiration", "DTE", "Volume", "Last Price", "Bid", "Ask", "Total return", "Annualized return"]]
-    df.columns = ["Ticker", "Current Stock Price", "Target Price", "Option Strike",  "Option Open Interest", "Expiration", "DTE", "Option Volume", "Option Last Price", "Option Bid", "Option Ask", "Total return", "Annualized return"]
-    df = df.reset_index(drop = True)
+ df = df[["ticker", "Current price", "target_prices", "Strike", "Open Interest", "Expiration", "DTE", "Volume", "Last Price", "Bid", "Ask", "Total return", "Annualized return"]]
+ df.columns = ["Ticker", "Current Stock Price", "Target Price", "Option Strike",  "Option Open Interest", "Expiration", "DTE", "Option Volume", "Option Last Price", "Option Bid", "Option Ask", "Total return", "Annualized return"]
+ df = df.reset_index(drop = True)
 
-    ## Applies desired formatting for prettier display of dataframe
+ ## Applies desired formatting for prettier display of dataframe
 
-    mapper =  {"Current Stock Price": "${:20,.2f}",
-           "Target Price": "${:20,.2f}",
-           "Option Strike": "${:20,.2f}",
-           "Option Last Price": "${:20,.2f}",
-           "Option Bid": "${:20,.2f}",
-           "Option Ask": "${:20,.2f}",
-           "Total return": "{:2.4f}%",
-           "Annualized return": "{:2.2f}%",
-           "Option Volume": "{:2.0f}"}
+ mapper =  {"Current Stock Price": "${:20,.2f}",
+        "Target Price": "${:20,.2f}",
+        "Option Strike": "${:20,.2f}",
+        "Option Last Price": "${:20,.2f}",
+        "Option Bid": "${:20,.2f}",
+        "Option Ask": "${:20,.2f}",
+        "Total return": "{:2.4f}%",
+        "Annualized return": "{:2.2f}%",
+        "Option Volume": "{:2.0f}"}
 
-    for col, format_spec in mapper.items():
-        if col in df.columns:
-            df[col] = df[col].apply(lambda x: format_spec.format(x))
-    return(df)
+ for col, format_spec in mapper.items():
+     if col in df.columns:
+         df[col] = df[col].apply(lambda x: format_spec.format(x))
+ return(df)
 
 
 
@@ -175,63 +182,107 @@ placeholder = st._legacy_dataframe()
 
 
 ## Run while the market is open
-while True:
-    all_puts, filtered_puts = [], []
 
-    ## loop through desired stocks
-    for stock in selected_stocks:
+if option == "Cash secured put":
+   all_puts, filtered_puts = [], []
 
-        ## first get all available dates
-        available_dates= options.get_expiration_dates(stock)
+else if option == "Covered Call":
+   all_calls, filtered_calls = [], []
+   
+## loop through desired stocks
+for stock in selected_stocks:
 
-        ## keep only those date within the next 45 days
-        dates_to_keep = [dt for dt in available_dates if (datetime.strptime(dt, "%B %d, %Y").date() - today).days <= max_DTE]
+  ## first get all available dates
+  available_dates= options.get_expiration_dates(stock)
 
-        st.text(f"processing data for {stock}")
+  ## keep only those date within the next 45 days
+  dates_to_keep = [dt for dt in available_dates if (datetime.strptime(dt, "%B %d, %Y").date() - today).days <= max_DTE]
 
-        try:
-            ## Get puts for available dates
-            for date in dates_to_keep:
-                puts = options.get_puts(stock, date)
-                puts["ticker"] = stock
-                puts["Expiration"] = date
-                all_puts.append(puts)
+  st.text(f"processing data for {stock}")
+  if option == "Cash secured put":
+     try:
+         ## Get puts for available dates
+         for date in dates_to_keep:
+             puts = options.get_puts(stock, date)
+             puts["ticker"] = stock
+             puts["Expiration"] = date
+             all_puts.append(puts)
+   
+         ## Combine everything into single dataframe
+         combined_df = pd.concat(all_puts)
+         
+         ## Copy this dataframe before modifying.
+         ##This is important!! The functions used to modify the dataframe makes changes
+         ## such that it becomes problematic to combine datatypes when we pull data for multiple stocks
+   
+         temp = pd.DataFrame.copy(combined_df)
+   
+         ## Process and filter the dataframe
+         processed_df = massage_dataframe(temp, target_price_multiplier = 1 - (min_stock_drawdown/100))
+         filtered_df = filter_dataframe(processed_df)
+         
+         ## If some puts are left over after filtering, we want to display them
+         if(len(filtered_df) > 0):
+   
+             #clear the previous results
+             clear_output(wait=True)
+   
+             #Display all the puts we identified for all tickers
+             filtered_puts.append(filtered_df)
+             display_df = pd.concat(filtered_puts)
+             # Display the DataFrame with custom options
+             
+             display_df = format_dataframe(display_df).sort_values(by= "Annualized return", ascending = False)
+             #display_df.style.format(mapper).bar(subset=["Annualized return", "DTE", "Option Open Interest"],
+             #                                               color = "cornflowerblue")
+             placeholder.dataframe(display_df)
+   
+     except Exception as e:
+         st.exception(e)
+         st.text(f"Failed to get data for {stock}")
+     all_puts = []
 
-            ## Combine everything into single dataframe
-            combined_df = pd.concat(all_puts)
-            
-            ## Copy this dataframe before modifying.
-            ##This is important!! The functions used to modify the dataframe makes changes
-            ## such that it becomes problematic to combine datatypes when we pull data for multiple stocks
 
-            temp = pd.DataFrame.copy(combined_df)
-
-            ## Process and filter the dataframe
-            processed_df = massage_dataframe(temp, target_price_multiplier = 1 - (min_stock_drawdown/100))
-            filtered_df = filter_dataframe(processed_df)
-            
-            ## If some puts are left over after filtering, we want to display them
-            if(len(filtered_df) > 0):
-
-                #clear the previous results
-                clear_output(wait=True)
-
-                #Display all the puts we identified for all tickers
-                filtered_puts.append(filtered_df)
-                display_df = pd.concat(filtered_puts)
-                # Display the DataFrame with custom options
-                
-                display_df = format_dataframe(display_df).sort_values(by= "Annualized return", ascending = False)
-                #display_df.style.format(mapper).bar(subset=["Annualized return", "DTE", "Option Open Interest"],
-                #                                               color = "cornflowerblue")
-                placeholder.dataframe(display_df)
-
+   else if option == "Covered Call":
+       ## Get puts for available dates
+         for date in dates_to_keep:
+             calls = options.get_calls(stock, date)
+             calls["ticker"] = stock
+             calls["Expiration"] = date
+             all_calls.append(calls)
+             
+         ## Combine everything into single dataframe
+         combined_df = pd.concat(all_calls)
+         
+         ## Copy this dataframe before modifying. 
+         ##This is important!! The functions used to modify the dataframe makes changes
+         ## such that it becomes problematic to combine datatypes when we pull data for multiple stocks
+         
+         temp = pd.DataFrame.copy(combined_df)
+         
+         ## Process and filter the dataframe
+         processed_df = massage_dataframe(temp)
+         filtered_df = filter_dataframe(processed_df)
+         
+         ## If some puts are left over after filtering, we want to display them
+         if(len(filtered_df) > 0):
+             
+             #clear the previous results
+             clear_output(wait=True)
+             
+             #Display all the puts we identified for all tickers
+             filtered_calls.append(filtered_df)
+             display_df = pd.concat(filtered_calls)
+             display_df = format_dataframe(display_df).sort_values(by= "DTE", ascending = True)
+             #display(display_df.style.format(mapper).bar(subset=["Annualized return", "DTE", "Option Open Interest"], 
+             #                                            color = "cornflowerblue"))
+             placeholder.dataframe(display_df)
         except Exception as e:
-            st.exception(e)
-            st.text(f"Failed to get data for {stock}")
-        all_puts = []
+         st.exception(e)
+         st.text(f"Failed to get data for {stock}")
+     all_calls = []
 
-    ## Update user on progress
-    st.text(f"Last checked on {datetime.now().strftime('%H:%M:%S')}")
-    #st.text(f"Next check on {(datetime.now() + timedelta(minutes = 10)).strftime('%H:%M:%S')}")
-    break
+## Update user on progress
+st.text(f"Last checked on {datetime.now().strftime('%H:%M:%S')}")
+#st.text(f"Next check on {(datetime.now() + timedelta(minutes = 10)).strftime('%H:%M:%S')}")
+
