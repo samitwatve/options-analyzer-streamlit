@@ -39,7 +39,7 @@ text_block = None
 option = st.selectbox(
    "Select a Contract Type",
    ("Cash secured put", "Covered Call"),
-   index=None,
+   index=0,
    placeholder="Cash secured put"
 )
 st.write('You selected:', option)
