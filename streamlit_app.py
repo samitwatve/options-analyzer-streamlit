@@ -74,7 +74,7 @@ if option == "Cash secured put":
        """)
 elif option == "Covered Call":
    with col3:
-      max_stock_upside = st.slider('Maximum % upside', min_value=0, max_value=100, step=5, value=15)
+      min_stock_upside = st.slider('Minimum % upside', min_value=0, max_value=100, step=5, value=15)
       st.markdown("""
       e.g. by setting this value to 10, the screener will only look for strike prices ***above*** a 10% upside in the current stock price
       """)
@@ -264,7 +264,7 @@ elif option == "Covered Call":
         temp = pd.DataFrame.copy(combined_df)
         
         ## Process and filter the dataframe
-        processed_df = massage_dataframe(temp)
+        processed_df = massage_dataframe(temp, target_price_multiplier = 1 + (min_stock_upside/100))
         filtered_df = filter_dataframe(processed_df)
         
         ## If some puts are left over after filtering, we want to display them
