@@ -54,10 +54,10 @@ with col1:
     min_DTE, max_DTE = st.slider("Days to Expiration (DTE)", 1, 100, (7, 45))
 
 with col2:
-    min_annualized_return = st.slider('Minimum Annualized return', 0, 200, 20)
+    min_annualized_return = st.slider('Minimum Annualized return', min_value=0, max_value=200, value=20)
 
 with col3:
-    min_stock_drawdown = st.slider('Minimum % Drawdown', min_value=0, max_value=100, step=5)
+    min_stock_drawdown = st.slider('Minimum % Drawdown', min_value=0, max_value=100, step=5, value=15)
     st.markdown("""
     e.g. by setting this value to 10, the screener will only look for strike prices below a 10% fall in the current stock price
     """)
