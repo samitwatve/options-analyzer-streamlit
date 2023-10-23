@@ -197,8 +197,8 @@ for stock in selected_stocks:
     ## keep only those date within the next 45 days
     dates_to_keep = [dt for dt in available_dates if (datetime.strptime(dt, "%B %d, %Y").date() - today).days <= max_DTE]
 
-    st.text(f"processing data for {stock}")
-    if option == "Cash secured put":
+   if option == "Cash secured put":
+        st.text(f"processing data for {stock}")
         try:
            ## Get puts for available dates
            for date in dates_to_keep:
@@ -243,6 +243,7 @@ for stock in selected_stocks:
 
 
     elif option == "Covered Call":
+        st.text(f"processing data for {stock}")
         try:
            ## Get puts for available dates
            for date in dates_to_keep:
@@ -284,6 +285,7 @@ for stock in selected_stocks:
 
 
 ## Update user on progress
-st.text(f"Last checked on {datetime.now().strftime('%H:%M:%S')}")
-#st.text(f"Next check on {(datetime.now() + timedelta(minutes = 10)).strftime('%H:%M:%S')}")
+if not option== None:
+   st.text(f"Last checked on {datetime.now().strftime('%H:%M:%S')}")
+   #st.text(f"Next check on {(datetime.now() + timedelta(minutes = 10)).strftime('%H:%M:%S')}")
 
