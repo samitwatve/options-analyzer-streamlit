@@ -63,7 +63,7 @@ st.markdown(f"<div style='text-align: justify; margin-bottom: 20px;'>{text_block
 col1, col2, col3, col4 = st.columns(4)
 
 with col1:
-    min_DTE, max_DTE = st.slider("Days to Expiration (DTE)", 1, 100, (7, 45))
+    min_DTE, max_DTE = st.slider("Days to Expiration (DTE)", 0, 100, (7, 45))
 
 with col2:
     min_annualized_return = st.slider('Minimum Annualized return', min_value=0, max_value=200, value=20)
