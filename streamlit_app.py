@@ -57,8 +57,10 @@ with col2:
     min_annualized_return = st.slider('Annualized return', 0, 200, 20)
 
 with col3:
-    min_stock_drawdown = st.slider('Minimum % Drawdown. \n e.g. by setting this value to 10, the screener will only look for strike prices below a 10% fall in the stock price', min_value=0, max_value=100, step=5)
-
+    min_stock_drawdown = st.slider('Minimum % Drawdown, min_value=0, max_value=100, step=5)
+    st.markdown("""
+    'e.g. by setting this value to 10, the screener will only look for strike prices below a 10% fall in the stock price'
+    """)
 contract_types = ["Covered Call", "Cash secured put"]
 
 # Multiselect dropdown for selecting stocks
