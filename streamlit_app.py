@@ -61,7 +61,6 @@ elif option == "Covered Call":
 st.markdown(f"<div style='text-align: justify; margin-bottom: 20px;'>{text_block}</div>", unsafe_allow_html=True)
 # Two-sided slider for user input
 col1, col2, col3, col4 = st.columns(4)
-col5 = st.columns(1)
 
 with col1:
     min_DTE, max_DTE = st.slider("Days to Expiration (DTE)", 0, 100, (7, 45))
@@ -85,10 +84,10 @@ with col4:
     min_volume = st.slider('Minimum Option Volume', 0, 1000, 10)
    
 if option == "Cash secured put":
-   col5 == None
    # Multiselect dropdown for selecting stocks
    selected_stocks = st.multiselect("Select one or more tickers (max 5):",options =  list(set(si.tickers_other() + si.tickers_nasdaq())), default = ["TQQQ"], max_selections = 5)
 if option == "Covered Call":
+   col5 = st.columns(1)
    with col5:
       cost_basis = float(st.text_input('Enter your cost basis for the stock', '$'))
    # Multiselect dropdown for selecting stocks
