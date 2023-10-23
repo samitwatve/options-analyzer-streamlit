@@ -215,7 +215,7 @@ while True:
                 
                 display_df = format_dataframe(display_df).sort_values(by= "Annualized return", ascending = False)
                 #display_df.style.format(mapper).bar(subset=["Annualized return", "DTE", "Option Open Interest"],
-                                                               color = "cornflowerblue")
+                #                                               color = "cornflowerblue")
                 placeholder.dataframe(display_df)
 
         except Exception as e:
