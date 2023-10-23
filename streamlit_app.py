@@ -222,6 +222,8 @@ for stock in selected_stocks:
 
            ## Process and filter the dataframe
            processed_df = massage_dataframe(temp, target_price_multiplier = target_price_multiplier)
+           st.dataframe(processed_df) 
+           
            filtered_df = filter_dataframe(processed_df)
            st.text(f"processed_df has {len(processed_df)} rows, {len(filtered_df)} remain after filtering")
            
