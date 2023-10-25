@@ -83,15 +83,35 @@ elif option == "Covered Call":
 with col4:
     min_volume = st.slider('Minimum Option Volume', 0, 1000, 10)
    
-if option == "Cash secured put":
-   # Multiselect dropdown for selecting stocks
-   selected_stocks = st.multiselect("Select one or more tickers (max 5):",options =  list(set(si.tickers_other() + si.tickers_nasdaq())), default = ["TQQQ"], max_selections = 5)
 if option == "Covered Call":
-   col5 = st.columns(1)
-   with col5:
-      cost_basis = float(st.text_input('Enter your cost basis for the stock', '$'))
-   # Multiselect dropdown for selecting stocks
-   selected_stocks = st.multiselect("Select stock ticker (max 1):", options =  list(set(si.tickers_other() + si.tickers_nasdaq())), default = ["TQQQ"], max_selections = 1)
+    col5, = st.columns(1)
+    
+    input_value = col5.text_input('Enter your cost basis for the stock', placeholder='$')
+
+    if input_value:
+        try:
+            cost_basis = float(input_value)
+        except ValueError:
+            col5.error('Please enter a valid number for the cost basis.')
+            cost_basis = None  # or another appropriate fallback value
+    else:
+        cost_basis = None  # or another appropriate fallback value
+
+    # Multiselect dropdown for selecting stocks
+    selected_stocks = st.multiselect(
+        "Select stock ticker (max 1):", 
+        options=list(set(si.tickers_other() + si.tickers_nasdaq())), 
+        default=["TQQQ"], 
+        max_selections=1
+    )
+elif option == "Cash secured put":
+    # Multiselect dropdown for selecting stocks
+    selected_stocks = st.multiselect(
+        "Select one or more tickers (max 5):", 
+        options=list(set(si.tickers_other() + si.tickers_nasdaq())), 
+        default=["TQQQ"], 
+        max_selections=5
+    )
 
 
 
@@ -156,14 +176,25 @@ def massage_dataframe(df, target_price_multiplier, option, cost_basis = None):
 
 ### Further filtering of dataframe to return only the desired options
 
-def filter_dataframe(df, min_open_interest = 10, min_annualized_return = min_annualized_return, max_DTE = max_DTE, min_bid = 0.1, min_volume = min_volume, min_DTE = min_DTE):
-    df = df[(df['Strike'] <= df["target_prices"]) &
-         (df["Open Interest"] >= min_open_interest) &
-         (df["Annualized return"] >= min_annualized_return) &
-         (df["DTE"] <= max_DTE) &
-         (df["DTE"] >= min_DTE) &
-         (df["Bid"] >= min_bid) &
-         (df["Volume"] >= min_volume)]
+def filter_dataframe(df, min_open_interest = 10, min_annualized_return = min_annualized_return, max_DTE = max_DTE, min_bid = 0.1, min_volume = min_volume, min_DTE = min_DTE, option = option):
+    
+    if option == "Cash secured put":
+        df = df[(df['Strike'] <= df["target_prices"]) &
+             (df["Open Interest"] >= min_open_interest) &
+             (df["Annualized return"] >= min_annualized_return) &
+             (df["DTE"] <= max_DTE) &
+             (df["DTE"] >= min_DTE) &
+             (df["Bid"] >= min_bid) &
+             (df["Volume"] >= min_volume)]
+    elif option == "Covered Call":
+        df = df[(df['Strike'] >= df["target_prices"]) &
+             (df["Open Interest"] >= min_open_interest) &
+             (df["Annualized return"] >= min_annualized_return) &
+             (df["DTE"] <= max_DTE) &
+             (df["DTE"] >= min_DTE) &
+             (df["Bid"] >= min_bid) &
+             (df["Volume"] >= min_volume)]
+             
     df = df.sort_values(by = ["Annualized return", "DTE"], ascending = [False, True])
     return(df)
 
