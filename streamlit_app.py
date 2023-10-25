@@ -33,13 +33,13 @@ import traceback
 # Title
 st.set_page_config(layout='wide')
 st.title("Options Analyzer")
-st.markdown(""" **WARNING!**  \n
-                Using this tool outside market hours may produce unreliable / non-sensical results.  \n
-                **PROCEED WITH CAUTION. YOU HAVE BEEN WARNED!!**  \n
-                For either option type, this calculator assumes that the option is ***held to maturity*** and then ***expires worthless***.
+st.markdown(""" **WARNING!**<br>
+                Using this tool outside market hours may produce unreliable / non-sensical results.<br>
+                **PROCEED WITH CAUTION. YOU HAVE BEEN WARNED!!**<br>
+                For either option type, this calculator assumes that the option is ***held to maturity*** and then ***expires worthless***.<br>
                 Therefore the ***Total return*** and ***Annualized Return*** numbers are ***Return if expired*** [see this](https://tradingmarkets.com/recent/calculating_covered_call_profits_-_not_as_easy_as_it_sounds-754753) for an in-depth discussion
                 The calculator ***does not*** include the effect of taxes, dividends and transaction costs.
-                """)
+                """, unsafe_allow_html=True)
 text_block = None
 
 option = st.selectbox(
