@@ -33,7 +33,13 @@ import traceback
 # Title
 st.set_page_config(layout='wide')
 st.title("Options Analyzer")
-st.markdown(""" **WARNING** Using this tool outside market hours may produce unreliable / non-sensical results. **PROCEED WITH CAUTION. YOU HAVE BEEN WARNED!!** """)
+st.markdown(""" **WARNING!** Using this tool outside market hours may produce unreliable / non-sensical results.
+                **PROCEED WITH CAUTION. YOU HAVE BEEN WARNED!!**
+                
+                For either option type, this calculator assumes that the option is ***held to maturity*** and then ***expires worthless***.
+                Therefore the *Total return* and *Annualized Return* numbers are *Return if expired* [see this](https://tradingmarkets.com/recent/calculating_covered_call_profits_-_not_as_easy_as_it_sounds-754753) for an in-depth discussion
+                The calculator does not include the effect of taxes, dividends and transaction costs.
+                """)
 text_block = None
 
 option = st.selectbox(
@@ -69,20 +75,20 @@ with col2:
     min_annualized_return = st.slider('Minimum Annualized return', min_value=0, max_value=200, value=20)
 if option == "Cash secured put":
    with col3:
-       min_stock_drawdown = st.slider('Minimum % Drawdown', min_value=0, max_value=100, step=5, value=15)
+       min_stock_drawdown = st.slider('Minimum % Stock down move', min_value=0, max_value=100, step=5, value=15)
        st.text(f"You selected {min_stock_drawdown}")
        st.markdown("""
        e.g. by setting this value to 10, the screener will only look for strike prices ***below*** a 10% fall in the current stock price
        """)
 elif option == "Covered Call":
    with col3:
-      min_stock_upside = st.slider('Minimum % upside', min_value=0, max_value=100, step=5, value=15)
+      min_stock_upside = st.slider('Minimum % stock up move', min_value=0, max_value=100, step=5, value=15)
       st.markdown("""
       e.g. by setting this value to 10, the screener will only look for strike prices ***above*** a 10% upside in the current stock price
       """)
 with col4:
     min_volume = st.slider('Minimum Option Volume', 0, 1000, 10)
-   
+
 if option == "Covered Call":
     col5, = st.columns(1)
     
