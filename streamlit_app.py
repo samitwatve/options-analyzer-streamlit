@@ -85,9 +85,7 @@ with col4:
    
 if option == "Covered Call":
     col5, = st.columns(1)
-    
     input_value = col5.text_input('Enter your cost basis for the stock', placeholder='$')
-
     if input_value:
         try:
             cost_basis = float(input_value)
