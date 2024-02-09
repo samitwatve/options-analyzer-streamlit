@@ -116,7 +116,7 @@ elif option == "Cash secured put":
     # Code to execute if the button is clicked
         selected_stocks = st.multiselect(
         "Select one or more tickers:", 
-        options=list(set(si.tickers_other() + si.tickers_nasdaq())), 
+        options=list(set(si.tickers_other() + si.tickers_nasdaq() + si.tickers_sp500())), 
         default=si.tickers_sp500(), 
         max_selections=5000
         )
@@ -125,7 +125,7 @@ elif option == "Cash secured put":
         # Multiselect dropdown for selecting stocks
         selected_stocks = st.multiselect(
         "Select one or more tickers:", 
-        options=list(set(si.tickers_other() + si.tickers_nasdaq())), 
+        options=list(set(si.tickers_other() + si.tickers_nasdaq() + si.tickers_sp500())), 
         default=["TQQQ"], 
         max_selections=5
         )
