@@ -111,13 +111,24 @@ if option == "Covered Call":
         max_selections=1
     )
 elif option == "Cash secured put":
-    # Multiselect dropdown for selecting stocks
-    selected_stocks = st.multiselect(
-        "Select one or more tickers (max 5):", 
+    col5, = st.columns(1)
+    if st.button('S & P 500'):
+    # Code to execute if the button is clicked
+        selected_stocks = st.multiselect(
+        "Select one or more tickers:", 
+        options=list(set(si.tickers_other() + si.tickers_nasdaq())), 
+        default=si.tickers_sp500(), 
+        max_selections=5000
+        )
+    else:
+    # Code to execute if the button is not clicked
+        # Multiselect dropdown for selecting stocks
+        selected_stocks = st.multiselect(
+        "Select one or more tickers:", 
         options=list(set(si.tickers_other() + si.tickers_nasdaq())), 
         default=["TQQQ"], 
         max_selections=5
-    )
+        )
 
 
 
