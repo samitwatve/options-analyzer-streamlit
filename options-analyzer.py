@@ -47,20 +47,20 @@ with col1:
     min_DTE, max_DTE = st.slider("Days to Expiration (DTE)", 0, 100, (7, 45))
 
 with col2:
-    min_annualized_return = st.slider('Minimum Annualized return', min_value=0, max_value=200, value=20)
+    min_annualized_return = st.slider('Minimum Annualized Return (%)', min_value=0, max_value=200, value=20)
 
 if option == "Cash secured put":
     with col3:
-        min_stock_drawdown = st.slider('Minimum % Stock down move', min_value=0, max_value=100, step=5, value=15)
+        min_stock_drawdown = st.slider('Minimum % Stock Down Move', min_value=0, max_value=100, step=5, value=15)
         st.text(f"You selected {min_stock_drawdown}%")
         st.markdown("""
-        e.g. by setting this value to 10, the screener will only look for strike prices ***below*** a 10% fall in the current stock price
+        e.g., by setting this value to 10, the screener will only look for strike prices ***below*** a 10% fall in the current stock price
         """)
 elif option == "Covered Call":
     with col3:
-        min_stock_upside = st.slider('Minimum % stock up move', min_value=0, max_value=100, step=5, value=15)
+        min_stock_upside = st.slider('Minimum % Stock Up Move', min_value=0, max_value=100, step=5, value=15)
         st.markdown("""
-        e.g. by setting this value to 10, the screener will only look for strike prices ***above*** a 10% upside in the current stock price
+        e.g., by setting this value to 10, the screener will only look for strike prices ***above*** a 10% upside in the current stock price
         """)
 with col4:
     min_volume = st.slider('Minimum Option Volume', 0, 1000, 10)
@@ -78,11 +78,21 @@ if option == "Covered Call":
     else:
         cost_basis = None
 
-    input_ticker = st.text_input("Enter stock ticker (max 1):", value="AAPL")
+    input_ticker = st.text_input("Enter stock ticker (max 1):", value="TQQQ")
     selected_stocks = [input_ticker.strip().upper()]
 elif option == "Cash secured put":
-    tickers_input = st.text_input("Enter one or more tickers (comma-separated):", value="AAPL, MSFT")
+    tickers_input = st.text_input("Enter one or more tickers (comma-separated):", value="TQQQ")
     selected_stocks = [ticker.strip().upper() for ticker in tickers_input.split(",")]
+
+with st.expander("Click here for explanations of each metric"):
+    st.markdown("""
+    - **Implied Volatility**: The market's forecast of a likely movement in a security's price.
+    - **Delta**: Measures the rate of change of the option value with respect to changes in the underlying asset's price.
+    - **Gamma**: Measures the rate of change in the delta with respect to changes in the underlying price.
+    - **Theta**: Represents the rate of change between the option price and time, or time sensitivity.
+    - **Vega**: Measures the sensitivity of the option price to changes in the volatility of the underlying asset.
+    - **Probability of Profit**: An estimate of the likelihood that the option will expire out of the money, resulting in a profit for option sellers.
+    """)
 
 placeholder = st.empty()
 
@@ -148,11 +158,13 @@ for stock in selected_stocks:
             )
 
         filtered_df = filter_dataframe(
-            processed_df, 
-            min_annualized_return=min_annualized_return, 
-            max_DTE=max_DTE, 
-            min_volume=min_volume, 
-            min_DTE=min_DTE, 
+            processed_df,
+            min_open_interest=10,
+            min_annualized_return=min_annualized_return,
+            max_DTE=max_DTE,
+            min_bid=0.1,
+            min_volume=min_volume,
+            min_DTE=min_DTE,
             option=option
         )
     except Exception as e:
@@ -167,8 +179,9 @@ for stock in selected_stocks:
 if filtered_options:
     display_df = pd.concat(filtered_options)
     display_df = format_dataframe(display_df)
+    
     placeholder.dataframe(display_df)
 else:
     st.text("No options meet the criteria.")
 
-st.text(f"Last checked on {datetime.now().strftime('%H:%M:%S')}")
+st.text(f"Last checked on {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
