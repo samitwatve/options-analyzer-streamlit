@@ -106,4 +106,5 @@ websockets==10.4
 wheel==0.41.2
 widgetsnbextension==4.0.9
 yahoo-fin==0.8.9.1
+yfinance==0.2.49
 zipp==3.17.0
