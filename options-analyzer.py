@@ -56,14 +56,16 @@ if option == "Cash secured put":
         st.markdown("""
         e.g., by setting this value to 10, the screener will only look for strike prices ***below*** a 10% fall in the current stock price
         """)
+    with col4:
+        min_volume = st.slider('Minimum Option Volume', 0, 1000, 10)
 elif option == "Covered Call":
     with col3:
         min_stock_upside = st.slider('Minimum % Stock Up Move', min_value=0, max_value=100, step=5, value=15)
         st.markdown("""
         e.g., by setting this value to 10, the screener will only look for strike prices ***above*** a 10% upside in the current stock price
         """)
-with col4:
-    min_volume = st.slider('Minimum Option Volume', 0, 1000, 10)
+    with col4:
+        min_volume = st.slider('Minimum Option Volume', 0, 1000, 10)
 
 if option == "Covered Call":
     col5 = st.columns(1)[0]
@@ -78,10 +80,13 @@ if option == "Covered Call":
     else:
         cost_basis = None
 
-    input_ticker = st.text_input("Enter stock ticker (max 1):", value="TQQQ")
+    input_ticker = st.text_input("Enter stock ticker (max 1):", value="AAPL")
     selected_stocks = [input_ticker.strip().upper()]
 elif option == "Cash secured put":
-    tickers_input = st.text_input("Enter one or more tickers (comma-separated):", value="TQQQ")
+    # Set default tickers for CSPs
+    default_tickers = ["TQQQ", "UPRO", "GOOG", "NFLX", "TSLA", "NVDA", "META", "AMZN", "AAPL"]
+    default_tickers_str = ", ".join(default_tickers)
+    tickers_input = st.text_input("Enter one or more tickers (comma-separated):", value=default_tickers_str)
     selected_stocks = [ticker.strip().upper() for ticker in tickers_input.split(",")]
 
 with st.expander("Click here for explanations of each metric"):
@@ -179,7 +184,6 @@ for stock in selected_stocks:
 if filtered_options:
     display_df = pd.concat(filtered_options)
     display_df = format_dataframe(display_df)
-    
     placeholder.dataframe(display_df)
 else:
     st.text("No options meet the criteria.")
